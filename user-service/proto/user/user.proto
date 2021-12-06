@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package ik.user.service;
+
+option go_package="proto/user";
+
+service UserService {
+  rpc Create(User) returns (Response) {}
+}
+
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string password = 4;
+  string status = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  string deleted_at = 8;
+}
+
+message Request {}
+
+
+message Response {
+  User user = 1;
+  repeated User users = 2;
+  repeated Error errors = 3;
+}
+
+message Error {
+  int32  code = 1;
+  string message = 2;
+}
