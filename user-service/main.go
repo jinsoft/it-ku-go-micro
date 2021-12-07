@@ -7,6 +7,7 @@ import (
 	"github.com/jinsoft/it-ku/user-service/model"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	repository "github.com/jinsoft/it-ku/user-service/repo"
+	"github.com/jinsoft/it-ku/user-service/service"
 	"github.com/micro/go-micro/v2"
 	"log"
 )
@@ -24,6 +25,8 @@ func main() {
 
 	repo := &repository.UserRepository{Db: db}
 
+	token := &service.TokenService{repo}
+
 	srv := micro.NewService(
 		micro.Name(ServerName),
 		micro.Version("latest"),
@@ -31,7 +34,7 @@ func main() {
 
 	srv.Init()
 
-	_ = pb.RegisterUserServiceHandler(srv.Server(), &handler.UserService{Repo: repo})
+	_ = pb.RegisterUserServiceHandler(srv.Server(), &handler.UserService{Repo: repo, Token: token})
 
 	if err := srv.Run(); err != nil {
 		fmt.Println(err)

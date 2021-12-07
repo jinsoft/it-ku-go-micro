@@ -2,10 +2,12 @@ syntax = "proto3";
 
 package ik.user.service;
 
-option go_package="proto/user";
+option go_package = "proto/user";
 
 service UserService {
   rpc Create(User) returns (Response) {}
+  rpc Auth(User) returns(Token) {}
+  rpc ValidateToken(Token) returns (Token){}
 }
 
 
@@ -32,4 +34,11 @@ message Response {
 message Error {
   int32  code = 1;
   string message = 2;
+}
+
+
+message Token {
+  string token = 1;
+  bool vlaid = 2;
+  repeated Error errors = 3;
 }
