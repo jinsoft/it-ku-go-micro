@@ -2,6 +2,7 @@ package repo
 
 import (
 	"github.com/jinsoft/it-ku/user-service/model"
+	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"gorm.io/gorm"
 )
 
@@ -33,12 +34,16 @@ func (repo *UserRepository) Get(id uint) (*model.User, error) {
 }
 
 func (repo *UserRepository) GetByEmail(email string) (*model.User, error) {
-	user := &model.User{}
+	user := &pb.User{}
+	// 如果使用model.User{} 在查询的时候语句是  SELECT * FROM `users` WHERE email = 'admin@ainiok.com' AND `users`.`deleted_at` IS NULL ORDER BY `users`.`id` LIMIT 1
+	// 改成不带有 deleted_at 字段的 pb.User{}
 	if err := repo.Db.Where("email = ?", email).
 		First(&user).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	userModel := &model.User{}
+	muser, _ := userModel.ToORM(user)
+	return muser, nil
 }
 
 func (repo *UserRepository) GetAll() ([]*model.User, error) {
