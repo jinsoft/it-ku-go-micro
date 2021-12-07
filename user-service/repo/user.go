@@ -1,39 +1,39 @@
 package repo
 
 import (
+	"github.com/jinsoft/it-ku/user-service/model"
 	"gorm.io/gorm"
-	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 )
 
 type Repository interface {
-	Create(user *pb.User) error
-	Get(id string) (*pb.User, error)
-	GetByEmail(email string) (*pb.User, error)
-	GetAll() ([]*pb.User, error)
+	Create(user *model.User) error
+	Get(id uint) (*model.User, error)
+	GetByEmail(email string) (*model.User, error)
+	GetAll() ([]*model.User, error)
 }
 
 type UserRepository struct {
 	Db *gorm.DB
 }
 
-func (repo *UserRepository) Create(user *pb.User) error {
+func (repo *UserRepository) Create(user *model.User) error {
 	if err := repo.Db.Create(user).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *UserRepository) Get(id string) (*pb.User, error) {
-	var user *pb.User
-	user.Id = id
+func (repo *UserRepository) Get(id uint) (*model.User, error) {
+	var user *model.User
+	user.ID = id
 	if err := repo.Db.First(&user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (repo *UserRepository) GetByEmail(email string) (*pb.User, error) {
-	user := &pb.User{}
+func (repo *UserRepository) GetByEmail(email string) (*model.User, error) {
+	user := &model.User{}
 	if err := repo.Db.Where("email = ?", email).
 		First(&user).Error; err != nil {
 		return nil, err
@@ -41,8 +41,8 @@ func (repo *UserRepository) GetByEmail(email string) (*pb.User, error) {
 	return user, nil
 }
 
-func (repo *UserRepository) GetAll() ([]*pb.User, error) {
-	var users []*pb.User
+func (repo *UserRepository) GetAll() ([]*model.User, error) {
+	var users []*model.User
 	if err := repo.Db.Find(&users).Error; err != nil {
 		return nil, err
 	}

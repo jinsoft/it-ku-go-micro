@@ -2,9 +2,11 @@ package handler
 
 import (
 	"context"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/jinsoft/it-ku/user-service/model"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"github.com/jinsoft/it-ku/user-service/repo"
+	"golang.org/x/crypto/bcrypt"
+	"strconv"
 )
 
 type UserService struct {
@@ -12,11 +14,19 @@ type UserService struct {
 }
 
 func (srv *UserService) Get(ctx context.Context, req *pb.User, res *pb.Response) error {
-	user, err := srv.Repo.Get(req.Id)
+	var userModel *model.User
+	var err error
+	if req.Id != "" {
+		id, _ := strconv.ParseUint(req.Id, 10, 64)
+		userModel, err = srv.Repo.Get(uint(id))
+	}
+
 	if err != nil {
 		return err
 	}
-	res.User = user
+	if userModel != nil {
+		res.User, _ = userModel.ToProtobuf()
+	}
 	return nil
 }
 
@@ -25,7 +35,12 @@ func (srv *UserService) GetAll(ctx context.Context, req *pb.Request, res *pb.Res
 	if err != nil {
 		return err
 	}
-	res.Users = users
+	userItems := make([]*pb.User, len(users))
+	for index, user := range users {
+		userItem, _ := user.ToProtobuf()
+		userItems[index] = userItem
+	}
+	res.Users = userItems
 	return nil
 }
 
@@ -36,7 +51,9 @@ func (srv *UserService) Create(ctx context.Context, req *pb.User, res *pb.Respon
 		return err
 	}
 	req.Password = string(hashedPass)
-	if err := srv.Repo.Create(req); err != nil {
+	userModel := &model.User{}
+	user, _ := userModel.ToORM(req)
+	if err := srv.Repo.Create(user); err != nil {
 		return err
 	}
 	res.User = req
