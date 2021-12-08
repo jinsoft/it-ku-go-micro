@@ -14,6 +14,12 @@ protoc --proto_path=. --micro_out=. --go_out=. proto/user/user.proto
 ```
 
 
+### api网关
+
+```shell
+micro api --handler=rpc --namespace=ik --type=service
+```
+
 #### todo:
 
 - 构建镜像 & 启动容器

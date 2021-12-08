@@ -4,6 +4,7 @@ import (
 	"github.com/jinsoft/it-ku/user-service/model"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type Repository interface {
@@ -25,12 +26,15 @@ func (repo *UserRepository) Create(user *model.User) error {
 }
 
 func (repo *UserRepository) Get(id uint) (*model.User, error) {
-	var user *model.User
-	user.ID = id
+	var user *pb.User
+	sid := strconv.FormatInt(int64(id), 10)
+	user.Id = sid
 	if err := repo.Db.First(&user).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	userModel := &model.User{}
+	muser, _ := userModel.ToORM(user)
+	return muser, nil
 }
 
 func (repo *UserRepository) GetByEmail(email string) (*model.User, error) {

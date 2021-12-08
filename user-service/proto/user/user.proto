@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package ik.user.service;
+package ik.service.user;
 
 option go_package = "proto/user";
 

@@ -12,7 +12,7 @@ import (
 	"log"
 )
 
-const ServerName = "ik.user.service"
+const ServerName = "ik.service.user"
 
 func main() {
 	db, err := database.CreateConnection()

@@ -23,6 +23,8 @@ func (srv *UserService) Get(ctx context.Context, req *pb.User, res *pb.Response)
 	if req.Id != "" {
 		id, _ := strconv.ParseUint(req.Id, 10, 64)
 		userModel, err = srv.Repo.Get(uint(id))
+	} else if req.Email != "" {
+		userModel, err = srv.Repo.GetByEmail(req.Email)
 	}
 
 	if err != nil {
