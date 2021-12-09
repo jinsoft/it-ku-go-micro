@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	Create(user *model.User) error
+	Update(user *model.User) error
 	Get(id uint) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
 	GetAll() ([]*model.User, error)
@@ -20,6 +21,13 @@ type UserRepository struct {
 
 func (repo *UserRepository) Create(user *model.User) error {
 	if err := repo.Db.Create(user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *UserRepository) Update(user *model.User) error {
+	if err := repo.Db.Save(user).Error; err != nil {
 		return err
 	}
 	return nil

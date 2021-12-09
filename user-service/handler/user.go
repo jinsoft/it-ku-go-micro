@@ -17,6 +17,22 @@ type UserService struct {
 	Token service.Authable
 }
 
+func (srv *UserService) GetById(ctx context.Context, user *pb.User, response *pb.Response) error {
+	panic("implement me")
+}
+
+func (srv *UserService) CreatePasswordReset(ctx context.Context, reset *pb.PasswordReset, response *pb.PasswordResetResponse) error {
+	panic("implement me")
+}
+
+func (srv *UserService) ValidatePasswordResetToken(ctx context.Context, token *pb.Token, token2 *pb.Token) error {
+	panic("implement me")
+}
+
+func (srv *UserService) DeletePasswordReset(ctx context.Context, reset *pb.PasswordReset, response *pb.PasswordResetResponse) error {
+	panic("implement me")
+}
+
 func (srv *UserService) Get(ctx context.Context, req *pb.User, res *pb.Response) error {
 	var userModel *model.User
 	var err error
@@ -32,6 +48,25 @@ func (srv *UserService) Get(ctx context.Context, req *pb.User, res *pb.Response)
 	}
 	if userModel != nil {
 		res.User, _ = userModel.ToProtobuf()
+	}
+	return nil
+}
+
+func (srv *UserService) Update(ctx context.Context, req *pb.User, res *pb.Response) error {
+	if req.Id == "" {
+		return errors.New("", "ID 不能为空", 402)
+	}
+	if req.Password != "" {
+		hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		req.Password = string(hashedPass)
+	}
+	id, _ := strconv.ParseUint(req.Id, 10, 64)
+	user, _ := srv.Repo.Get(uint(id))
+	if err := srv.Repo.Update(user); err != nil {
+		return err
 	}
 	return nil
 }

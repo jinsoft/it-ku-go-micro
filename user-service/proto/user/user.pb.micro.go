@@ -43,8 +43,15 @@ func NewUserServiceEndpoints() []*api.Endpoint {
 
 type UserService interface {
 	Create(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error)
+	Get(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error)
+	GetById(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error)
+	GetAll(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 	Auth(ctx context.Context, in *User, opts ...client.CallOption) (*Token, error)
 	ValidateToken(ctx context.Context, in *Token, opts ...client.CallOption) (*Token, error)
+	Update(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error)
+	CreatePasswordReset(ctx context.Context, in *PasswordReset, opts ...client.CallOption) (*PasswordResetResponse, error)
+	ValidatePasswordResetToken(ctx context.Context, in *Token, opts ...client.CallOption) (*Token, error)
+	DeletePasswordReset(ctx context.Context, in *PasswordReset, opts ...client.CallOption) (*PasswordResetResponse, error)
 }
 
 type userService struct {
@@ -61,6 +68,36 @@ func NewUserService(name string, c client.Client) UserService {
 
 func (c *userService) Create(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.name, "UserService.Create", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) Get(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "UserService.Get", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) GetById(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "UserService.GetById", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) GetAll(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "UserService.GetAll", in)
 	out := new(Response)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -89,19 +126,73 @@ func (c *userService) ValidateToken(ctx context.Context, in *Token, opts ...clie
 	return out, nil
 }
 
+func (c *userService) Update(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "UserService.Update", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) CreatePasswordReset(ctx context.Context, in *PasswordReset, opts ...client.CallOption) (*PasswordResetResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.CreatePasswordReset", in)
+	out := new(PasswordResetResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) ValidatePasswordResetToken(ctx context.Context, in *Token, opts ...client.CallOption) (*Token, error) {
+	req := c.c.NewRequest(c.name, "UserService.ValidatePasswordResetToken", in)
+	out := new(Token)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) DeletePasswordReset(ctx context.Context, in *PasswordReset, opts ...client.CallOption) (*PasswordResetResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.DeletePasswordReset", in)
+	out := new(PasswordResetResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for UserService service
 
 type UserServiceHandler interface {
 	Create(context.Context, *User, *Response) error
+	Get(context.Context, *User, *Response) error
+	GetById(context.Context, *User, *Response) error
+	GetAll(context.Context, *Request, *Response) error
 	Auth(context.Context, *User, *Token) error
 	ValidateToken(context.Context, *Token, *Token) error
+	Update(context.Context, *User, *Response) error
+	CreatePasswordReset(context.Context, *PasswordReset, *PasswordResetResponse) error
+	ValidatePasswordResetToken(context.Context, *Token, *Token) error
+	DeletePasswordReset(context.Context, *PasswordReset, *PasswordResetResponse) error
 }
 
 func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) error {
 	type userService interface {
 		Create(ctx context.Context, in *User, out *Response) error
+		Get(ctx context.Context, in *User, out *Response) error
+		GetById(ctx context.Context, in *User, out *Response) error
+		GetAll(ctx context.Context, in *Request, out *Response) error
 		Auth(ctx context.Context, in *User, out *Token) error
 		ValidateToken(ctx context.Context, in *Token, out *Token) error
+		Update(ctx context.Context, in *User, out *Response) error
+		CreatePasswordReset(ctx context.Context, in *PasswordReset, out *PasswordResetResponse) error
+		ValidatePasswordResetToken(ctx context.Context, in *Token, out *Token) error
+		DeletePasswordReset(ctx context.Context, in *PasswordReset, out *PasswordResetResponse) error
 	}
 	type UserService struct {
 		userService
@@ -118,10 +209,38 @@ func (h *userServiceHandler) Create(ctx context.Context, in *User, out *Response
 	return h.UserServiceHandler.Create(ctx, in, out)
 }
 
+func (h *userServiceHandler) Get(ctx context.Context, in *User, out *Response) error {
+	return h.UserServiceHandler.Get(ctx, in, out)
+}
+
+func (h *userServiceHandler) GetById(ctx context.Context, in *User, out *Response) error {
+	return h.UserServiceHandler.GetById(ctx, in, out)
+}
+
+func (h *userServiceHandler) GetAll(ctx context.Context, in *Request, out *Response) error {
+	return h.UserServiceHandler.GetAll(ctx, in, out)
+}
+
 func (h *userServiceHandler) Auth(ctx context.Context, in *User, out *Token) error {
 	return h.UserServiceHandler.Auth(ctx, in, out)
 }
 
 func (h *userServiceHandler) ValidateToken(ctx context.Context, in *Token, out *Token) error {
 	return h.UserServiceHandler.ValidateToken(ctx, in, out)
+}
+
+func (h *userServiceHandler) Update(ctx context.Context, in *User, out *Response) error {
+	return h.UserServiceHandler.Update(ctx, in, out)
+}
+
+func (h *userServiceHandler) CreatePasswordReset(ctx context.Context, in *PasswordReset, out *PasswordResetResponse) error {
+	return h.UserServiceHandler.CreatePasswordReset(ctx, in, out)
+}
+
+func (h *userServiceHandler) ValidatePasswordResetToken(ctx context.Context, in *Token, out *Token) error {
+	return h.UserServiceHandler.ValidatePasswordResetToken(ctx, in, out)
+}
+
+func (h *userServiceHandler) DeletePasswordReset(ctx context.Context, in *PasswordReset, out *PasswordResetResponse) error {
+	return h.UserServiceHandler.DeletePasswordReset(ctx, in, out)
 }

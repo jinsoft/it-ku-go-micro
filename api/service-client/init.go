@@ -1,7 +1,7 @@
 package service_client
 
 import (
-	"github.com/jinsoft/it-ku/api/handler"
+	"github.com/jinsoft/it-ku/api/handler/user"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"github.com/micro/go-micro/v2"
 )
@@ -13,5 +13,5 @@ func RegisterService() {
 	)
 
 	cli := app.Client()
-	handler.UserService = pb.NewUserService("ik.service.user", cli)
+	user.UserService = pb.NewUserService("ik.service.user", cli)
 }

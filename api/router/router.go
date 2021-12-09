@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinsoft/it-ku/api/handler"
+	"github.com/jinsoft/it-ku/api/handler/user"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ func NewRouter() *gin.Engine {
 	})
 	apiv1 := r.Group("/v1")
 	{
-		apiv1.POST("/register", handler.Create)
+		apiv1.POST("/register", user.Create)
 	}
 
 	return r
