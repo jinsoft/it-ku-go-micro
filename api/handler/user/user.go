@@ -1,15 +1,48 @@
 package user
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/jinsoft/it-ku/api/param/user"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
+	"log"
 	"net/http"
 )
 
 var (
-	UserService pb.UserService
+	Srv pb.UserService
 )
+
+func Login(c *gin.Context) {
+	// 先实现邮箱登录， 后续再扩展成手机号和验证码登录
+	var login user.Login
+	if err := c.ShouldBindJSON(&login); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  err.Error(),
+		})
+		return
+	}
+	token, err := Srv.Auth(context.TODO(), &pb.User{
+		Email:    login.Email,
+		Password: login.Password,
+	})
+	if err != nil {
+		log.Printf("用户登录失败:%v", err)
+		c.JSON(http.StatusOK, gin.H{
+			"code": -200,
+			"msg":  "登录失败",
+		})
+		return
+	}
+	log.Printf("用户登录成功: %s", token.Token)
+	c.JSON(http.StatusOK, gin.H{
+		"code":  http.StatusOK,
+		"msg":   "登录成功",
+		"token": token.Token,
+	})
+	return
+}
 
 func Create(c *gin.Context) {
 	var regParam user.Register
@@ -20,7 +53,7 @@ func Create(c *gin.Context) {
 		})
 		return
 	}
-	resp, err := UserService.Get(c, &pb.User{
+	resp, err := Srv.Get(c, &pb.User{
 		Email: regParam.Email,
 	})
 	if err != nil {
@@ -38,7 +71,7 @@ func Create(c *gin.Context) {
 		})
 		return
 	}
-	if resp, err := UserService.Create(c, &pb.User{
+	if resp, err := Srv.Create(c, &pb.User{
 		Name:     regParam.Name,
 		Email:    regParam.Email,
 		Password: regParam.Password,

@@ -13,5 +13,5 @@ func RegisterService() {
 	)
 
 	cli := app.Client()
-	user.UserService = pb.NewUserService("ik.service.user", cli)
+	user.Srv = pb.NewUserService("ik.service.user", cli)
 }
