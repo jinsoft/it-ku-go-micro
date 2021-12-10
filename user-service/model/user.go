@@ -1,17 +1,25 @@
 package model
 
 import (
+	"fmt"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"gorm.io/gorm"
 	"strconv"
 )
 
 type User struct {
-	gorm.Model
+	BaseModel
 	Name     string `gorm:"type:varchar(100)"`
 	Email    string `gorm:"type:varchar(128);unique_index"`
 	Password string
 	Status   uint8 `gorm:"default:1"`
+	SoftDelete
+}
+
+func (model *User) BeforeSave(tx *gorm.DB) error {
+	fmt.Println("*************** before save ******************")
+	//tx.Statement.SetColumn("UpdatedAt", time.Now().Format(time.RFC3339))
+	return nil
 }
 
 func (model *User) ToORM(req *pb.User) (*User, error) {

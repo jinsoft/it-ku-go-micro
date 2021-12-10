@@ -64,8 +64,7 @@ func (srv *UserService) Get(ctx context.Context, req *pb.User, res *pb.Response)
 	} else if req.Email != "" {
 		userModel, err = srv.Repo.GetByEmail(req.Email)
 	}
-
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return err
 	}
 	if userModel != nil {
@@ -86,8 +85,14 @@ func (srv *UserService) Update(ctx context.Context, req *pb.User, res *pb.Respon
 		req.Password = string(hashedPass)
 	}
 	id, _ := strconv.ParseUint(req.Id, 10, 64)
-	user, _ := srv.Repo.Get(uint(id))
-	if err := srv.Repo.Update(user); err != nil {
+	user, err := srv.Repo.Get(uint(id))
+	if err != nil && err != gorm.ErrRecordNotFound {
+		// 记录不存在
+		return errors.New("", "用户不存在", 402)
+	}
+	uptUser, _ := user.ToORM(req)
+	// todo: 这里有个问题， 更新的时候会同时更新created_at 的值，  UPDATE `users` SET `created_at`='0000-00-00 00:00:00',`updated_at`='2021-12-10 16:38:58.391' 暂未解决
+	if err := srv.Repo.Update(uptUser); err != nil {
 		return err
 	}
 	return nil

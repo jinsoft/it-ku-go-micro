@@ -34,7 +34,7 @@ func (repo *UserRepository) Update(user *model.User) error {
 }
 
 func (repo *UserRepository) Get(id uint) (*model.User, error) {
-	var user *pb.User
+	user := &pb.User{}
 	sid := strconv.FormatInt(int64(id), 10)
 	user.Id = sid
 	if err := repo.Db.First(&user).Error; err != nil {

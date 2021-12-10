@@ -97,13 +97,14 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	if resp.User.Id != "" {
+	if resp.User != nil && resp.User.Id != "" {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -200,
 			"msg":  "邮箱已被注册",
 		})
 		return
 	}
+
 	if resp, err := Srv.Create(c, &pb.User{
 		Name:     regParam.Name,
 		Email:    regParam.Email,
