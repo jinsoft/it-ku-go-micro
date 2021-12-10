@@ -8,25 +8,47 @@ import (
 	"github.com/jinsoft/it-ku/user-service/service"
 	"github.com/micro/go-micro/v2/errors"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"log"
+	"net/http"
 	"strconv"
 )
 
 type UserService struct {
-	Repo  repo.Repository
-	Token service.Authable
+	Repo      repo.Repository
+	Token     service.Authable
+	ResetRepo repo.PasswordResetInterface
 }
 
 func (srv *UserService) GetById(ctx context.Context, user *pb.User, response *pb.Response) error {
 	panic("implement me")
 }
 
-func (srv *UserService) CreatePasswordReset(ctx context.Context, reset *pb.PasswordReset, response *pb.PasswordResetResponse) error {
-	panic("implement me")
+func (srv *UserService) CreatePasswordReset(ctx context.Context, req *pb.PasswordReset, res *pb.PasswordResetResponse) error {
+	if req.Email == "" {
+		return errors.New("", "邮箱不能为空", http.StatusBadRequest)
+	}
+	if err := srv.ResetRepo.Create(req); err != nil {
+		return err
+	}
+	res.PasswordReset = req
+	return nil
 }
 
-func (srv *UserService) ValidatePasswordResetToken(ctx context.Context, token *pb.Token, token2 *pb.Token) error {
-	panic("implement me")
+func (srv *UserService) ValidatePasswordResetToken(ctx context.Context, req *pb.Token, res *pb.Token) error {
+	if req.Token == "" {
+		return errors.New("", "Token信息不能为空", http.StatusBadRequest)
+	}
+	_, err := srv.ResetRepo.GetByToken(req.Token)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return errors.New("", "数据库查询异常", http.StatusBadRequest)
+	}
+	if err == gorm.ErrRecordNotFound {
+		res.Vlaid = false
+	} else {
+		res.Vlaid = true
+	}
+	return nil
 }
 
 func (srv *UserService) DeletePasswordReset(ctx context.Context, reset *pb.PasswordReset, response *pb.PasswordResetResponse) error {

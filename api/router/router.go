@@ -17,6 +17,7 @@ func NewRouter() *gin.Engine {
 	{
 		apiv1.POST("/register", user.Create)
 		apiv1.POST("/login", user.Login)
+		apiv1.POST("/update", user.Update)
 	}
 
 	return r

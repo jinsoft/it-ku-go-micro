@@ -23,8 +23,8 @@ func main() {
 	// 每次启动服务时都会检查，如果数据表不存在则创建，已存在检查是否有修改
 	db.AutoMigrate(&model.User{})
 
-	repo := &repository.UserRepository{Db: db}
-
+	repo := &repository.UserRepository{db}
+	resetRepo := &repository.PasswordResetRepository{db}
 	token := &service.TokenService{repo}
 
 	srv := micro.NewService(
@@ -34,7 +34,7 @@ func main() {
 
 	srv.Init()
 
-	_ = pb.RegisterUserServiceHandler(srv.Server(), &handler.UserService{Repo: repo, Token: token})
+	_ = pb.RegisterUserServiceHandler(srv.Server(), &handler.UserService{Repo: repo, Token: token, ResetRepo: resetRepo})
 
 	if err := srv.Run(); err != nil {
 		fmt.Println(err)

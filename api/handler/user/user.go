@@ -7,11 +7,44 @@ import (
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var (
 	Srv pb.UserService
 )
+
+func Update(c *gin.Context) {
+	var userParam user.User
+	if err := c.ShouldBindJSON(&userParam); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": http.StatusBadRequest,
+			"msg":  err.Error(),
+		})
+		return
+	}
+	uid := strconv.FormatInt(userParam.Id, 10)
+	resp, err := Srv.Update(context.TODO(), &pb.User{
+		Id:       uid,
+		Name:     userParam.Name,
+		Email:    userParam.Email,
+		Password: userParam.Password,
+		Status:   userParam.Status,
+	})
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": "200",
+		"data": resp,
+		"msg":  "更新成功",
+	})
+	return
+}
 
 func Login(c *gin.Context) {
 	// 先实现邮箱登录， 后续再扩展成手机号和验证码登录
