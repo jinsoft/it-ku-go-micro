@@ -2,10 +2,13 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/jinsoft/it-ku/user-service/model"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"github.com/jinsoft/it-ku/user-service/repo"
 	"github.com/jinsoft/it-ku/user-service/service"
+	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/errors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -14,10 +17,16 @@ import (
 	"strconv"
 )
 
+const (
+	passwordResetTopic = "password.reset"
+	aciveAccountTopic  = "account.active"
+)
+
 type UserService struct {
 	Repo      repo.Repository
 	Token     service.Authable
 	ResetRepo repo.PasswordResetInterface
+	PubSub    broker.Broker
 }
 
 func (srv *UserService) GetById(ctx context.Context, user *pb.User, response *pb.Response) error {
@@ -28,10 +37,18 @@ func (srv *UserService) CreatePasswordReset(ctx context.Context, req *pb.Passwor
 	if req.Email == "" {
 		return errors.New("", "邮箱不能为空", http.StatusBadRequest)
 	}
+	resetModel := new(model.PasswordReset)
+	passwordReset, _ := resetModel.ToORM(req)
 	if err := srv.ResetRepo.Create(req); err != nil {
 		return err
 	}
-	res.PasswordReset = req
+	if passwordReset != nil {
+		req, _ = passwordReset.ToProtobuf()
+		if err := srv.publishEvent(req); err != nil {
+			return err
+		}
+		res.PasswordReset = req
+	}
 	return nil
 }
 
@@ -124,6 +141,23 @@ func (srv *UserService) Create(ctx context.Context, req *pb.User, res *pb.Respon
 	if err := srv.Repo.Create(user); err != nil {
 		return err
 	}
+
+	// 注册成功, 发送激活账号邮件
+	createStuct := map[string]string{
+		"email":    req.Email,
+		"password": req.Password,
+	}
+	body, _ := json.Marshal(createStuct)
+	msg := &broker.Message{
+		Header: map[string]string{
+			"email": req.Email,
+		},
+		Body: body,
+	}
+	fmt.Println("*****************pub")
+	if err := srv.PubSub.Publish(aciveAccountTopic, msg); err != nil {
+		log.Printf("[pub] create account pub failed: %v", err)
+	}
 	res.User = req
 	return nil
 }
@@ -159,5 +193,22 @@ func (srv *UserService) ValidateToken(ctx context.Context, req *pb.Token, res *p
 		return errors.New("", "无效用户", 403)
 	}
 	res.Vlaid = true
+	return nil
+}
+
+func (srv *UserService) publishEvent(reset *pb.PasswordReset) error {
+	body, err := json.Marshal(reset)
+	if err != nil {
+		return err
+	}
+	msg := &broker.Message{
+		Header: map[string]string{
+			"email": reset.Email,
+		},
+		Body: body,
+	}
+	if err := srv.PubSub.Publish(passwordResetTopic, msg); err != nil {
+		log.Printf("[pub] failed: %v", err)
+	}
 	return nil
 }

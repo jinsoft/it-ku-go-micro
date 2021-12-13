@@ -24,8 +24,7 @@ func main() {
 	db.AutoMigrate(&model.User{})
 
 	repo := &repository.UserRepository{db}
-	resetRepo := &repository.PasswordResetRepository{db}
-	token := &service.TokenService{repo}
+	//token := &service.TokenService{repo}
 
 	srv := micro.NewService(
 		micro.Name(ServerName),
@@ -34,7 +33,14 @@ func main() {
 
 	srv.Init()
 
-	_ = pb.RegisterUserServiceHandler(srv.Server(), &handler.UserService{Repo: repo, Token: token, ResetRepo: resetRepo})
+	userHandler := &handler.UserService{
+		Repo:      repo,
+		Token:     &service.TokenService{repo},
+		ResetRepo: &repository.PasswordResetRepository{db},
+		PubSub:    srv.Server().Options().Broker,
+	}
+
+	_ = pb.RegisterUserServiceHandler(srv.Server(), userHandler)
 
 	if err := srv.Run(); err != nil {
 		fmt.Println(err)
