@@ -11,13 +11,27 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/micro/go-plugins/wrapper/monitoring/prometheus/v2"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
+	"net/http"
 )
 
 const (
 	ServerName = "ik.service.user"
 	EtcdAddr   = "127.0.0.1:2379"
 )
+
+// 启动http服务监听客户端数据采集
+func prometheusBoot() {
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		err := http.ListenAndServe(":9092", nil)
+		if err != nil {
+			log.Fatal("listenAndServer err:", err)
+		}
+	}()
+}
 
 func main() {
 	db, err := database.CreateConnection()
@@ -36,9 +50,13 @@ func main() {
 		micro.Registry(etcd.NewRegistry(
 			registry.Addrs(EtcdAddr))),
 		micro.Version("latest"),
+		micro.WrapHandler(prometheus.NewHandlerWrapper()),
 	)
 
 	srv.Init()
+
+	// 采集监控数据
+	prometheusBoot()
 
 	userHandler := &handler.UserService{
 		Repo:      repo,

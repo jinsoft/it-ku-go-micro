@@ -20,6 +20,10 @@ protoc --proto_path=. --micro_out=. --go_out=. proto/user/user.proto
 micro api --handler=rpc --namespace=ik --type=service
 ```
 
+## nats消息中间件
+
 #### todo:
 
 - 构建镜像 & 启动容器
+
+- 逻辑校验现在是写到api，不清楚常用的写法
