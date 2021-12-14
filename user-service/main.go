@@ -9,10 +9,15 @@ import (
 	repository "github.com/jinsoft/it-ku/user-service/repo"
 	"github.com/jinsoft/it-ku/user-service/service"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 	"log"
 )
 
-const ServerName = "ik.service.user"
+const (
+	ServerName = "ik.service.user"
+	EtcdAddr   = "127.0.0.1:2379"
+)
 
 func main() {
 	db, err := database.CreateConnection()
@@ -28,6 +33,8 @@ func main() {
 
 	srv := micro.NewService(
 		micro.Name(ServerName),
+		micro.Registry(etcd.NewRegistry(
+			registry.Addrs(EtcdAddr))),
 		micro.Version("latest"),
 	)
 
