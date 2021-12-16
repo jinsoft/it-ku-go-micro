@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jinsoft/it-ku/common/tracer"
 	database "github.com/jinsoft/it-ku/user-service/db"
 	"github.com/jinsoft/it-ku/user-service/handler"
 	"github.com/jinsoft/it-ku/user-service/model"
@@ -12,6 +13,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-plugins/wrapper/monitoring/prometheus/v2"
+	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
@@ -20,6 +22,7 @@ import (
 const (
 	ServerName = "ik.service.user"
 	EtcdAddr   = "127.0.0.1:2379"
+	JaegerAddr = "127.0.0.1:6831"
 )
 
 // 启动http服务监听客户端数据采集
@@ -34,6 +37,14 @@ func prometheusBoot() {
 }
 
 func main() {
+
+	jaegerTracer, closer, err := tracer.NewJaegerTracer(ServerName, JaegerAddr)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closer.Close()
+
 	db, err := database.CreateConnection()
 	if err != nil {
 		log.Fatalf("not connect to DB: %v", err)
@@ -50,7 +61,10 @@ func main() {
 		micro.Registry(etcd.NewRegistry(
 			registry.Addrs(EtcdAddr))),
 		micro.Version("latest"),
-		micro.WrapHandler(prometheus.NewHandlerWrapper()),
+		micro.WrapHandler(
+			prometheus.NewHandlerWrapper(),
+			opentracing.NewHandlerWrapper(jaegerTracer),
+		),
 	)
 
 	srv.Init()
