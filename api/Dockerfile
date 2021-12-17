@@ -25,6 +25,6 @@ RUN apk update && apk add --no-cache bash ca-certificates
 RUN mkdir /app
 WORKDIR /app
 
-COPY --from=builder /app/laracom-demo-api/laracom-demo-api .
+COPY --from=builder /app/ik-api/ik-api .
 
 CMD ["./ik-api"]

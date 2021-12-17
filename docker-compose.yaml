@@ -1,0 +1,72 @@
+version: '3.3'
+
+networks:
+  backend:
+    driver: "bridge"
+
+volumes:
+  db_data: {}
+  etcd_data: {}
+
+services:
+  ik-user-api:
+    build:
+      context: ./api
+    depends_on:
+      - ik-user-service
+      - ik-etcd
+    environment:
+      MICRO_REGISTRY: "etcd"
+      MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
+      MICRO_TRACE_SERVER: "jaeger:6831"
+
+  ik-user-service:
+    depends_on:
+      - ik-user-db
+      - ik-nats
+      - ik-etcd
+    build:
+      context: ./user-service
+    environment:
+      MICRO_REGISTRY:"etcd"
+      MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
+    networks:
+      - backend
+  ik-user-db:
+    image: mysql:5.7
+    container_name: ik-user-db
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: "root"
+      MYSQL_DATABASE: "ik_user"
+      MYSQL_ROOT_PASSWORD: "root"
+  ik-nats:
+    image: nats:latest
+    ports:
+      - 4222:4222
+    restart: always
+    networks:
+      - backend
+  ik-etcd:
+    image: bitnami/etcd:3
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+    ports:
+      - 2379:2379
+      - 2380:2380
+    networks:
+      - backend
+    volumes:
+      - etcd_data:/bitnami/etcd
+  ik-jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    networks:
+      - backend
