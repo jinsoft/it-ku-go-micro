@@ -1,12 +1,16 @@
-version: '3.3'
+version: '3.5'
 
 networks:
   backend:
     driver: "bridge"
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.0.0.0/24"
 
 volumes:
-  db_data: {}
-  etcd_data: {}
+  db_data: { }
+  etcd_data: { }
 
 services:
   ik-user-api:
@@ -16,9 +20,11 @@ services:
       - ik-user-service
       - ik-etcd
     environment:
-      MICRO_REGISTRY: "etcd"
-      MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
-      MICRO_TRACE_SERVER: "jaeger:6831"
+      - MICRO_REGISTRY:"etcd"
+      - MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
+      - MICRO_TRACE_SERVER:"jaeger:6831"
+    networks:
+      - backend
 
   ik-user-service:
     depends_on:
@@ -28,8 +34,8 @@ services:
     build:
       context: ./user-service
     environment:
-      MICRO_REGISTRY:"etcd"
-      MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
+      - MICRO_REGISTRY:"etcd"
+      - MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
     networks:
       - backend
   ik-user-db:
@@ -45,6 +51,8 @@ services:
       MYSQL_PASSWORD: "root"
       MYSQL_DATABASE: "ik_user"
       MYSQL_ROOT_PASSWORD: "root"
+    networks:
+      - backend
   ik-nats:
     image: nats:latest
     ports:
