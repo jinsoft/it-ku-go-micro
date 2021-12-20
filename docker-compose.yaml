@@ -13,7 +13,7 @@ volumes:
   etcd_data: { }
 
 services:
-  ik-user-api:
+  ik-api:
     build:
       context: ./api
     depends_on:
