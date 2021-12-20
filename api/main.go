@@ -7,11 +7,13 @@ import (
 	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2/web"
 	"log"
+	"os"
 )
 
-const (
+var (
 	ServerName = "ik.web.api"
-	EtcdAddr   = "127.0.0.1:2379"
+	//EtcdAddr   = "127.0.0.1:2379"
+	EtcdAddr = os.Getenv("MICRO_REGISTRY_ADDRESS")
 )
 
 func init() {

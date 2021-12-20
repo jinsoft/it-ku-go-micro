@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"os"
 )
 
 func CreateConnection() (*gorm.DB, error) {
-	//host := os.Getenv("DB_HOST")
-	//user := os.Getenv("DB_USER")
-	//DBName := os.Getenv("DB_NAME")
-	//password := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	user := os.Getenv("DB_USER")
+	DBName := os.Getenv("DB_NAME")
+	password := os.Getenv("DB_PASSWORD")
 
-	var (
-		host     = "127.0.0.1:3306"
-		user     = "root"
-		DBName   = "ik_user"
-		password = "root"
-	)
+	//var (
+	//	host     = "127.0.0.1:3306"
+	//	user     = "root"
+	//	DBName   = "ik_user"
+	//	password = "root"
+	//)
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, DBName)
 	return gorm.Open(mysql.New(mysql.Config{

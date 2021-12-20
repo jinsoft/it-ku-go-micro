@@ -13,6 +13,23 @@ volumes:
   etcd_data: { }
 
 services:
+  ik-user-service:
+    container_name: ik-user-service
+    depends_on:
+      - ik-user-db
+      - ik-nats
+      - ik-etcd
+    build:
+      context: ./user-service
+    environment:
+      - MICRO_REGISTRY:"etcd"
+      - MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
+      - DB_HOST:"ik-user-db:3306"
+      - DB_NAME:"ik_user"
+      - DB_USER:"root"
+      - DB_PASSWORD:"root"
+    networks:
+      - backend
   ik-api:
     container_name: ik-api
     build:
@@ -25,21 +42,7 @@ services:
       - MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
       - MICRO_TRACE_SERVER:"jaeger:6831"
     ports:
-    - 8088:8088
-    networks:
-      - backend
-
-  ik-user-service:
-    container_name: ik-user-service
-    depends_on:
-      - ik-user-db
-      - ik-nats
-      - ik-etcd
-    build:
-      context: ./user-service
-    environment:
-      - MICRO_REGISTRY:"etcd"
-      - MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
+      - 8088:8088
     networks:
       - backend
   ik-user-db:
@@ -52,8 +55,8 @@ services:
       - db_data:/var/lib/mysql
     restart: always
     environment:
-      MYSQL_USER: "root"
-      MYSQL_PASSWORD: "root"
+      MYSQL_USER: "ik_user"
+      MYSQL_PASSWORD: "123456"
       MYSQL_DATABASE: "ik_user"
       MYSQL_ROOT_PASSWORD: "root"
     networks:
