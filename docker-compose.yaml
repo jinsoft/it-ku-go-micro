@@ -14,6 +14,7 @@ volumes:
 
 services:
   ik-api:
+    container_name: ik-api
     build:
       context: ./api
     depends_on:
@@ -23,10 +24,13 @@ services:
       - MICRO_REGISTRY:"etcd"
       - MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
       - MICRO_TRACE_SERVER:"jaeger:6831"
+    ports:
+    - 8088:8088
     networks:
       - backend
 
   ik-user-service:
+    container_name: ik-user-service
     depends_on:
       - ik-user-db
       - ik-nats
@@ -39,8 +43,9 @@ services:
     networks:
       - backend
   ik-user-db:
-    image: mysql:5.7
     container_name: ik-user-db
+    build:
+      context: ./mysql
     ports:
       - 3306:3306
     volumes:

@@ -1,6 +1,6 @@
 
 # 使用 golang 官方镜像提供 Go 运行环境，并且命名为 buidler 以便后续引用
-FROM golang:alpine as builder
+FROM golang:1.13-alpine as builder
 
 # 启用 Go Modules 并设置 GOPROXY
 ENV GO111MODULE on
@@ -36,3 +36,5 @@ WORKDIR /app
 
 # 这一步不再从宿主机拷贝二进制文件，而是从上一个阶段构建的 builder 容器中拉取，神奇吧
 COPY --from=builder /app/ik-user-service/ik-user-service .
+
+ENTRYPOINT ["./ik-user-service"]

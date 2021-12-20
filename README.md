@@ -27,3 +27,11 @@ micro api --handler=rpc --namespace=ik --type=service
 - 构建镜像 & 启动容器
 
 - 逻辑校验现在是写到api，不清楚常用的写法
+
+
+
+### Jaeger UI 
+
+```shell
+127.0.0.1:16686
+```

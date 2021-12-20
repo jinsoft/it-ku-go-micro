@@ -1,4 +1,4 @@
-FROM golang:alpine as builder
+FROM golang:1.13-alpine as builder
 
 ENV GO111MODULE on
 
@@ -20,9 +20,8 @@ FROM alpine:latest
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
-RUN apk update && apk add --no-cache bash ca-certificates
+RUN apk update && apk add --no-cache bash ca-certificates && mkdir /app
 
-RUN mkdir /app
 WORKDIR /app
 
 COPY --from=builder /app/ik-api/ik-api .
