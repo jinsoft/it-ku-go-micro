@@ -26,8 +26,8 @@ services:
       - MICRO_REGISTRY_ADDRESS:"ik-etcd:2379"
       - DB_HOST:"ik-user-db:3306"
       - DB_NAME:"ik_user"
-      - DB_USER:"root"
-      - DB_PASSWORD:"root"
+      - DB_USER:"ik_user"
+      - DB_PASSWORD:"123456"
     networks:
       - backend
   ik-api:
