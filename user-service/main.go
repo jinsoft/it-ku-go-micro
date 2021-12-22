@@ -17,12 +17,15 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
+	"os"
 )
 
-const (
+var (
 	ServerName = "ik.service.user"
-	EtcdAddr   = "127.0.0.1:2379"
-	JaegerAddr = "127.0.0.1:6831"
+	//EtcdAddr   = "127.0.0.1:2379"
+	EtcdAddr = os.Getenv("MICRO_REGISTRY_ADDRESS")
+	//JaegerAddr = "127.0.0.1:6831"
+	JaegerAddr = os.Getenv("MICRO_TRACE_SERVER")
 )
 
 // 启动http服务监听客户端数据采集
