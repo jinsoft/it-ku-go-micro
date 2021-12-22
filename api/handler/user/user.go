@@ -77,6 +77,15 @@ func Login(c *gin.Context) {
 	return
 }
 
+// createExample godoc
+// @Summary create user
+// @schemes
+// @Description create user
+// @Tags User
+// @Accpet json
+// @Produce json
+// @Success 200 {string} string
+// @router /v1/register [post]
 func Create(c *gin.Context) {
 	var regParam user.Register
 	if err := c.ShouldBindJSON(&regParam); err != nil {

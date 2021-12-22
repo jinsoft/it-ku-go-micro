@@ -14,7 +14,7 @@ protoc --proto_path=. --micro_out=. --go_out=. proto/user/user.proto
 ```
 
 
-### api网关
+### micro 网关
 
 ```shell
 micro api --handler=rpc --namespace=ik --type=service
@@ -35,3 +35,22 @@ micro api --handler=rpc --namespace=ik --type=service
 ```shell
 127.0.0.1:16686
 ```
+
+## api
+
+### swag
+
+```shell
+go get -u github.com/swaggo/swag/cmd/swag
+
+swag init
+
+go get -u github.com/swaggo/gin-swagger
+
+
+```
+
+
+如果报错找不到json文件```Failed to fetch http://127.0.0.1:8088/swagger/doc.json ```
+
+需要导入swag生成的json文件 ```_ "github.com/jinsoft/it-ku/api/docs"``` 

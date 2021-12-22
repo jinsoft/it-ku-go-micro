@@ -1,0 +1,37 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample api",
+        "title": "IK API",
+        "contact": {
+            "name": "hhh",
+            "url": "https://www.ainiok.com",
+            "email": "job@ainiok.com"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8088",
+    "basePath": "/v1",
+    "paths": {
+        "/v1/register": {
+            "post": {
+                "description": "create user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "create user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

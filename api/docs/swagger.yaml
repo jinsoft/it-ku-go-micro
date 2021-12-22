@@ -1,0 +1,25 @@
+basePath: /v1
+host: localhost:8088
+info:
+  contact:
+    email: job@ainiok.com
+    name: hhh
+    url: https://www.ainiok.com
+  description: This is a sample api
+  title: IK API
+  version: "1.0"
+paths:
+  /v1/register:
+    post:
+      description: create user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: create user
+      tags:
+      - User
+swagger: "2.0"

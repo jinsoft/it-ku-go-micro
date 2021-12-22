@@ -19,6 +19,17 @@ var (
 func init() {
 	serviceclient.RegisterService()
 }
+
+// @title IK API
+// @version 1.0
+// @description This is a sample api
+
+// @contact.name hhh
+// @contact.url https://www.ainiok.com
+// @contact.email job@ainiok.com
+
+// @host localhost:8088
+// @BasePath /v1
 func main() {
 
 	g := r.NewRouter()
