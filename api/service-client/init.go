@@ -6,13 +6,17 @@ import (
 	"github.com/jinsoft/it-ku/common/wrapper/breaker/hystrix"
 	pb "github.com/jinsoft/it-ku/user-service/proto/user"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	"log"
+	"os"
 )
 
-const (
+var (
 	ServerName = "ik.client.api"
-	JaegerAddr = "192.168.1.32:6831"
+	JaegerAddr = os.Getenv("MICRO_TRACE_SERVER")
+	EtcdAddr   = os.Getenv("MICRO_REGISTRY_ADDRESS")
 )
 
 func RegisterService() {
@@ -26,6 +30,8 @@ func RegisterService() {
 	app := micro.NewService(
 		micro.Name("ik.client.api"),
 		micro.Version("latest"),
+		micro.Registry(etcd.NewRegistry(
+			registry.Addrs(EtcdAddr))),
 		micro.WrapClient(
 			hystrix.NewClientWrapper(),
 			opentracing.NewClientWrapper(jaegerTracer),
