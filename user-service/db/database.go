@@ -12,7 +12,6 @@ func CreateConnection() (*gorm.DB, error) {
 	user := os.Getenv("DB_USER")
 	DBName := os.Getenv("DB_NAME")
 	password := os.Getenv("DB_PASSWORD")
-
 	//var (
 	//	host     = "127.0.0.1:3306"
 	//	user     = "root"
@@ -21,6 +20,7 @@ func CreateConnection() (*gorm.DB, error) {
 	//)
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, DBName)
+	fmt.Println(dsn)
 	return gorm.Open(mysql.New(mysql.Config{
 		DSN:                       dsn,   // DSN data source name
 		DefaultStringSize:         256,   // string 类型字段的默认长度
